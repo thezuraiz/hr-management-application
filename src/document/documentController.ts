@@ -1,28 +1,23 @@
 import { NextFunction, Request, Response } from "express";
 
 import {
-  getStorage,
   ref,
   getDownloadURL,
   uploadBytesResumable,
 } from "firebase/storage";
 import createHttpError from "http-errors";
 import { AuthRequest } from "../middleware/authenticationHandler";
-import { firestoreDB, initializFirebaseApp } from "../config/db";
+import { firestoreDB } from "../config/db";
 import {
   collection,
   doc,
   DocumentData,
-  DocumentReference,
-  DocumentSnapshot,
-  getDoc,
   getDocs,
   query,
   setDoc,
   where,
 } from "firebase/firestore";
-
-const storage = getStorage(initializFirebaseApp());
+import { storage } from "../../server";
 
 const uploadFileToStorage = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -127,7 +122,7 @@ const getAllDocuments = async (
       documents.push(doc.data());
     });
 
-    res.json({ documents });
+    res.json({ length: documents.length, documents });
   } catch (e) {
     return next(createHttpError(500, `Error fetching documents: ${e}`));
   }

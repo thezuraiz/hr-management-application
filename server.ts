@@ -1,8 +1,9 @@
+import { getStorage } from "firebase/storage";
 import app from "./src/app";
 import { config } from "./src/config/config";
 import { initializFirebaseApp } from "./src/config/db";
 
-initializFirebaseApp();
+export const storage = getStorage(initializFirebaseApp());
 
 const startServer = async () => {
   const port = config.port || 3000;
