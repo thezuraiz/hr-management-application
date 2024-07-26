@@ -9,7 +9,6 @@ const firebaseConfig = {
   storageBucket: config.storageBucket,
   messagingSenderId: config.messagingSenderId,
   appId: config.appId,
-  measurementId: config.measurementId,
 };
 
 let app: FirebaseApp;

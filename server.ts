@@ -1,5 +1,8 @@
 import app from "./src/app";
 import { config } from "./src/config/config";
+import { initializFirebaseApp } from "./src/config/db";
+
+initializFirebaseApp();
 
 const startServer = async () => {
   const port = config.port || 3000;
