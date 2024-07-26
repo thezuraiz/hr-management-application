@@ -1,6 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
 import authenticate, { AuthRequest } from "../middleware/authenticationHandler";
-import { getAllDocuments, submitDocument } from "./documentController";
+import {
+  getAllDocuments,
+  getDocumentById,
+  submitDocument,
+} from "./documentController";
 import multer from "multer";
 import {
   collection,
@@ -30,12 +34,6 @@ documentRouter.post(
 
 documentRouter.get("/", authenticate, getAllDocuments);
 
-documentRouter.get(
-  "/:id",
-  authenticate,
-  (req: Request, res: Response, next: NextFunction) => {
-    res.json(req.params.id);
-  }
-);
+documentRouter.get("/:id", authenticate, getDocumentById);
 
 export { documentRouter };

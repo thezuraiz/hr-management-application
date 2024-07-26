@@ -13,6 +13,9 @@ import {
   collection,
   doc,
   DocumentData,
+  DocumentReference,
+  DocumentSnapshot,
+  getDoc,
   getDocs,
   query,
   setDoc,
@@ -130,4 +133,38 @@ const getAllDocuments = async (
   }
 };
 
-export { submitDocument, getAllDocuments };
+const getDocumentById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const _req = req as AuthRequest;
+    const collectionRef = collection(firestoreDB, "users");
+    const q = query(collectionRef, where("userId", "==", _req.userId));
+    const snapshot = await getDocs(q);
+
+    const userSnapshot = snapshot.docs[0].ref;
+    const documentControllerRef = collection(userSnapshot, "documents");
+    const documentsSnapshot = await getDocs(documentControllerRef);
+
+    const _documentId = req.params.id;
+
+    let document;
+    documentsSnapshot.forEach((e) => {
+      if (e.id == _documentId) {
+        document = e.data();
+      }
+    });
+
+    if (document!) {
+      res.json({ msg: "document found", document });
+    } else {
+      res.json({ msg: "document not found" });
+    }
+  } catch (e) {
+    next(createHttpError(500, `Error: ${e}`));
+  }
+};
+
+export { submitDocument, getAllDocuments, getDocumentById };
