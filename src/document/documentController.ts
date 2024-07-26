@@ -77,7 +77,7 @@ const submitDocument = async (
       documentName,
       description,
       document: document_FileURL,
-      date: new Date(),
+      date: new Date().toDateString(),
       userId: _req.userId,
       documentId: newDocRef.id,
     };
