@@ -12,6 +12,7 @@ import { firestoreDB, initializFirebaseApp } from "../config/db";
 import {
   collection,
   doc,
+  DocumentData,
   getDocs,
   query,
   setDoc,
@@ -99,6 +100,34 @@ const submitDocument = async (
   }
 };
 
+const getAllDocuments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const _req = req as AuthRequest;
+    const collectionRef = collection(firestoreDB, "users");
+    const q = query(collectionRef, where("userId", "==", _req.userId));
+    const snapshot = await getDocs(q);
 
+    if (snapshot.empty) {
+      return next(createHttpError(404, "User not found"));
+    }
 
-export { submitDocument };
+    const userDocRef = snapshot.docs[0].ref;
+    const documentsCollectionRef = collection(userDocRef, "documents");
+    const documentsSnapshot = await getDocs(documentsCollectionRef);
+
+    const documents: DocumentData[] = [];
+    documentsSnapshot.forEach((doc) => {
+      documents.push(doc.data());
+    });
+
+    res.json({ documents });
+  } catch (e) {
+    return next(createHttpError(500, `Error fetching documents: ${e}`));
+  }
+};
+
+export { submitDocument, getAllDocuments };

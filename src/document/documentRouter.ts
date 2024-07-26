@@ -1,14 +1,24 @@
-import express from "express";
-import authenticate from "../middleware/authenticationHandler";
-import { submitDocument } from "./documentController";
+import express, { NextFunction, Request, Response } from "express";
+import authenticate, { AuthRequest } from "../middleware/authenticationHandler";
+import { getAllDocuments, submitDocument } from "./documentController";
 import multer from "multer";
+import {
+  collection,
+  DocumentData,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { firestoreDB } from "../config/db";
+import createHttpError from "http-errors";
 
 const documentRouter = express.Router();
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 documentRouter.post(
-  "/",
+  "/submit",
   authenticate,
   upload.fields([
     { name: "document", maxCount: 1 },
@@ -18,6 +28,14 @@ documentRouter.post(
   submitDocument
 );
 
+documentRouter.get("/", authenticate, getAllDocuments);
 
+documentRouter.get(
+  "/:id",
+  authenticate,
+  (req: Request, res: Response, next: NextFunction) => {
+    res.json(req.params.id);
+  }
+);
 
 export { documentRouter };
