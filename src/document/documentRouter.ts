@@ -1,22 +1,11 @@
-import express, { NextFunction, Request, Response } from "express";
-import authenticate, { AuthRequest } from "../middleware/authenticationHandler";
+import express from "express";
+import multer from "multer";
+import authenticate from "../middleware/authenticationHandler";
 import {
   getAllDocuments,
   getDocumentById,
   submitDocument,
 } from "./documentController";
-import multer from "multer";
-import {
-  collection,
-  DocumentData,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-import { firestoreDB } from "../config/db";
-import createHttpError from "http-errors";
-
 const documentRouter = express.Router();
 
 const upload = multer({ storage: multer.memoryStorage() });
