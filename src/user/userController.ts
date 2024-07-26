@@ -61,4 +61,40 @@ const registerUser = async (
   }
 };
 
-export { registerUser };
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // --- Validation
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(createHttpError(300, "All Fields are required!"));
+    }
+
+    // Find user from Database
+    const collectionRef = collection(firestoreDB, "users");
+    const q = query(collectionRef, where("email", "==", email));
+    const docSnapshot = await getDocs(q);
+    if (docSnapshot.empty) {
+      const error = createHttpError(404, "User Not Found");
+      return next(error);
+    }
+
+    const user = docSnapshot.docs[0];
+    const userData = user.data();
+
+    // Hash Password
+    const isMatched = await bcrypt.compare(password, userData.hashPasssword);
+
+    if (!isMatched) {
+      return next(createHttpError(401, "Username or password incorrect!"));
+    }
+
+    const token = jwt.sign({ sub: userData.userId }, config.jwt_key as string, {
+      expiresIn: "7d",
+    });
+    res.json({ msg: "user login", token });
+  } catch (error) {
+    return next(createHttpError(500, "Failed to Login: " + error));
+  }
+};
+
+export { registerUser, loginUser };
