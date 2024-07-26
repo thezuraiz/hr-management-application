@@ -48,7 +48,7 @@ const registerUser = async (
 
     // Todo: generate jw token
     const token = jwt.sign({ sub: userData.userId }, config.jwt_key as string, {
-      expiresIn: "1d",
+      expiresIn: "7d",
     });
 
     // Todo: send response
