@@ -11,13 +11,23 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.21",
+    "@types/http-errors": "^2.0.4",
     "@types/node": "^20.14.12",
+    "eslint": "^9.7.0",
+    "globals": "^15.8.0",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^7.17.0"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "http-errors": "^2.0.0"
+  },
+  "overrides": {
+    "eslint": "^9.7.0"
   }
 }
