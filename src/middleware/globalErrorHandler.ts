@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpError } from "http-errors";
+import { config } from "../config/config";
 
 const globalErrorHander = (
   error: HttpError,
@@ -11,7 +12,7 @@ const globalErrorHander = (
   return res.status(statusCode).json({
     error: error.message,
     errorStack:
-      process.env.NODE_ENV == "DEVELOPMENT" ? error.stack : "Not Available",
+      config.node_env == "DEVELOPMENT" ? error.stack : "Not Available",
   });
 };
 
