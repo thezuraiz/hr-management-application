@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 
 import {
   ref,
+  deleteObject,
   getDownloadURL,
   uploadBytesResumable,
 } from "firebase/storage";
@@ -10,6 +11,7 @@ import { AuthRequest } from "../middleware/authenticationHandler";
 import { firestoreDB } from "../config/db";
 import {
   collection,
+  deleteDoc,
   doc,
   DocumentData,
   getDocs,
@@ -17,6 +19,7 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
+
 import { storage } from "../../server";
 
 const uploadFileToStorage = async (
@@ -52,7 +55,7 @@ const submitDocument = async (
     const document_FileURL = await uploadFileToStorage(
       storage,
       files.document[0],
-      `documents/${_req.userId}`
+      `documents/${_req.userId}${Date.now()}`
     );
 
     const { documentName, description } = req.body;
@@ -138,10 +141,17 @@ const getDocumentById = async (
     const collectionRef = collection(firestoreDB, "users");
     const q = query(collectionRef, where("userId", "==", _req.userId));
     const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      return next(createHttpError(500, "Invalid user"));
+    }
 
     const userSnapshot = snapshot.docs[0].ref;
     const documentControllerRef = collection(userSnapshot, "documents");
     const documentsSnapshot = await getDocs(documentControllerRef);
+
+    if (documentsSnapshot.empty) {
+      return next(createHttpError(500, "No Documents found"));
+    }
 
     const _documentId = req.params.id;
 
@@ -162,4 +172,61 @@ const getDocumentById = async (
   }
 };
 
-export { submitDocument, getAllDocuments, getDocumentById };
+const deleteDocument = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const _req = req as AuthRequest;
+    const collectionRef = collection(firestoreDB, "users");
+    const q = query(collectionRef, where("userId", "==", _req.userId));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      return next(createHttpError(500, "Invalid user"));
+    }
+
+    const userSnapshot = snapshot.docs[0].ref;
+    const documentControllerRef = collection(userSnapshot, "documents");
+    const documentsSnapshot = await getDocs(documentControllerRef);
+
+    if (documentsSnapshot.empty) {
+      return next(createHttpError(500, "No Documents found"));
+    }
+
+    const _documentId = req.params.id;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let document: any;
+    documentsSnapshot.forEach((e) => {
+      if (e.id == _documentId) {
+        document = e;
+      }
+    });
+
+    if (document) {
+      // Delete document from Firestore
+      await deleteDoc(doc(firestoreDB, document.ref.path));
+
+      // Assume the document has a 'filePath' field storing the Cloud Storage file path
+      const filePath = document.data();
+      // console.log(`File reference: ${filePath.document}`);
+      const fileReference = ref(storage, filePath.document);
+      await deleteObject(fileReference)
+        .then(() => {
+          console.log("FIle deleted from Cloud");
+        })
+        .catch((error) => {
+          console.log("Error: FIle deleted from Cloud ", error);
+        });
+
+      res.json({ msg: "Document and associated file deleted successfully" });
+    } else {
+      res.json({ msg: "Document not found" });
+    }
+  } catch (e) {
+    next(createHttpError(500, `Error: ${e}`));
+  }
+};
+
+export { submitDocument, getAllDocuments, getDocumentById, deleteDocument };

@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import authenticate from "../middleware/authenticationHandler";
 import {
+  deleteDocument,
   getAllDocuments,
   getDocumentById,
   submitDocument,
@@ -20,9 +21,8 @@ documentRouter.post(
   ]),
   submitDocument
 );
-
 documentRouter.get("/", authenticate, getAllDocuments);
-
 documentRouter.get("/:id", authenticate, getDocumentById);
+documentRouter.post("/delete/:id", authenticate, deleteDocument);
 
 export { documentRouter };
