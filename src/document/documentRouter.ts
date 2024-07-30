@@ -5,6 +5,7 @@ import {
   deleteDocument,
   getAllDocuments,
   getDocumentById,
+  getDocumentTypes,
   submitDocument,
 } from "./documentController";
 const documentRouter = express.Router();
@@ -22,6 +23,7 @@ documentRouter.post(
   submitDocument
 );
 documentRouter.get("/", authenticate, getAllDocuments);
+documentRouter.get("/documenttypes", authenticate, getDocumentTypes);
 documentRouter.get("/:id", authenticate, getDocumentById);
 documentRouter.post("/delete/:id", authenticate, deleteDocument);
 

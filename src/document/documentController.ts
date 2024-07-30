@@ -229,4 +229,27 @@ const deleteDocument = async (
   }
 };
 
-export { submitDocument, getAllDocuments, getDocumentById, deleteDocument };
+const getDocumentTypes = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    console.debug("Doument Types Api Hit");
+    const q = query(collection(firestoreDB, "documentTypes"));
+    const snapshot = await getDocs(q);
+    const data = snapshot.docs[0].data();
+    console.debug("documentTypes : ", data["types"]);
+    res.json({ types: data["types"] });
+  } catch (e) {
+    return next(createHttpError(400, "Something went wrong"));
+  }
+};
+
+export {
+  submitDocument,
+  getAllDocuments,
+  getDocumentById,
+  deleteDocument,
+  getDocumentTypes,
+};
