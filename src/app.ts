@@ -9,6 +9,9 @@ const app = express();
 // To decode and read json data
 app.use(express.json());
 
+// To decode and read file
+app.use(express.urlencoded({ extended: false }));
+
 app.get("/", (req, res) => {
   res.json({
     message: "Hello Zuraiz! App Running",
@@ -18,7 +21,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRouter);
 
 app.use("/api/document", documentRouter);
-app.use("/api/todo",todoRouter)
+app.use("/api/todo", todoRouter);
 
 app.use(globalErrorHander);
 
