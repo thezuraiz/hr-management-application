@@ -3,8 +3,6 @@ import { NextFunction, Request, Response } from "express";
 import {
   ref,
   deleteObject,
-  getDownloadURL,
-  uploadBytesResumable,
 } from "firebase/storage";
 import createHttpError from "http-errors";
 import { AuthRequest } from "../middleware/authenticationHandler";
