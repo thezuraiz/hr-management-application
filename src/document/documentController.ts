@@ -21,19 +21,7 @@ import {
 } from "firebase/firestore";
 
 import { storage } from "../../server";
-
-const uploadFileToStorage = async (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  storage: any,
-  file: Express.Multer.File,
-  path: string
-): Promise<string> => {
-  const storageRef = ref(storage, `file/${path}`);
-  const snapshot = await uploadBytesResumable(storageRef, file.buffer, {
-    contentType: file.mimetype,
-  });
-  return getDownloadURL(snapshot.ref);
-};
+import { uploadFileToStorage } from "../uploadFile";
 
 const submitDocument = async (
   req: Request,
@@ -59,6 +47,10 @@ const submitDocument = async (
     );
 
     const { documentName, description } = req.body;
+
+    if (!documentName || !description) {
+      return next(createHttpError(400, "required fileds"));
+    }
 
     const userQuery = query(
       collection(firestoreDB, "users"),
