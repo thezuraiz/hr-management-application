@@ -1,13 +1,17 @@
 import express from "express";
-import { getAllTodos, getPriorities, submitTodo } from "./todoController";
+import {
+  deleteTodo,
+  getAllTodos,
+  getPriorities,
+  getTodo,
+  submitTodo,
+} from "./todoController";
 import authenticate from "../middleware/authenticationHandler";
 import multer from "multer";
 
 const todoRouter = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-todoRouter.get("/priorities", authenticate, getPriorities);
-todoRouter.get("/", getAllTodos);
 todoRouter.post(
   "/submit",
   authenticate,
@@ -18,5 +22,9 @@ todoRouter.post(
   ]),
   submitTodo
 );
+todoRouter.get("/priorities", authenticate, getPriorities);
+todoRouter.get("/", authenticate, getAllTodos);
+todoRouter.get("/:id", authenticate, getTodo);
+todoRouter.post("/delete/:id", authenticate, deleteTodo);
 
 export { todoRouter };
