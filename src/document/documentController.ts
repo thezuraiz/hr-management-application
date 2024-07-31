@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import {
-  ref,
-  deleteObject,
-} from "firebase/storage";
+import { ref, deleteObject } from "firebase/storage";
 import createHttpError from "http-errors";
 import { AuthRequest } from "../middleware/authenticationHandler";
 import { firestoreDB } from "../config/db";

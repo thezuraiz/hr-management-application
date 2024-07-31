@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import {
   collection,
+  deleteDoc,
   doc,
   getDocs,
   query,
@@ -12,6 +13,7 @@ import createHttpError from "http-errors";
 import { AuthRequest } from "../middleware/authenticationHandler";
 import { uploadFileToStorage } from "../uploadFile";
 import { storage } from "../../server";
+import { deleteObject, ref } from "firebase/storage";
 
 const getLeaveTypes = async (
   req: Request,
@@ -185,10 +187,63 @@ const getLeavesByID = async (
   }
 };
 
+const deleteLeave = async (req: Request, res: Response, next: NextFunction) => {
+  console.debug("Get by ID Leave API Hit");
+  try {
+    const _req = req as AuthRequest;
+    const collectionRef = collection(firestoreDB, "users");
+    const q = query(collectionRef, where("userId", "==", _req.userId));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      return next(createHttpError(500, "Invalid user"));
+    }
+
+    const userSnapshot = snapshot.docs[0].ref;
+    const documentControllerRef = collection(userSnapshot, "leaves");
+    const documentsSnapshot = await getDocs(documentControllerRef);
+
+    if (documentsSnapshot.empty) {
+      return next(createHttpError(500, "No leave found"));
+    }
+
+    const leaveId = req.params.id;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let leave: any;
+    documentsSnapshot.forEach((e) => {
+      if (e.id == leaveId) {
+        leave = e;
+      }
+    });
+
+    if (leave) {
+      await deleteDoc(doc(firestoreDB, leave.ref.path));
+      const filePath = leave.data();
+      const fileReference = ref(storage, filePath.document);
+      await deleteObject(fileReference)
+        .then(() => {
+          console.log("Leave deleted from Cloud");
+        })
+        .catch((error) => {
+          console.log("Error: Leave deleted from Cloud ", error);
+        });
+
+      res.json({ msg: "Leave deleted successfully" });
+    } else {
+      res.json({ msg: "Leave not found" });
+    }
+  } catch (e) {
+    return next(
+      createHttpError(500, `Error while deleting leave. Error: ${e}`)
+    );
+  }
+};
+
 export {
   getLeaveTypes,
   getLeavePriority,
   submitLeaves,
   getLeaves,
   getLeavesByID,
+  deleteLeave,
 };

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  deleteLeave,
   getLeavePriority,
   getLeaves,
   getLeavesByID,
@@ -27,5 +28,6 @@ leaveRouter.get("/", authenticate, getLeaves);
 leaveRouter.get("/leavetypes", authenticate, getLeaveTypes);
 leaveRouter.get("/leavepriority", authenticate, getLeavePriority);
 leaveRouter.get("/:id", authenticate, getLeavesByID);
+leaveRouter.post("/delete/:id", authenticate, deleteLeave);
 
 export { leaveRouter };
